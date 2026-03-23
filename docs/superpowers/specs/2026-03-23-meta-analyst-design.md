@@ -14,7 +14,7 @@ Meta-Analyst is an executable agent skill that performs end-to-end pairwise meta
 - Pairwise meta-analysis only (no network meta-analysis)
 - RCT intervention studies only (no observational, diagnostic, or prognostic)
 - Binary + continuous outcomes (no time-to-event as primary input, though HR can be approximated)
-- PubMed as sole search database (extensible to Embase/CENTRAL later)
+- Three search databases: PubMed, Cochrane CENTRAL, ClinicalTrials.gov (all free APIs)
 
 **Conference target:** Claw4S 2026 (deadline April 5, 2026)
 
@@ -104,16 +104,31 @@ This design means Meta-Analyst is fully functional standalone but produces riche
   - AND across P, I, C concepts (outcomes typically not included in search to avoid missing relevant studies)
   - Apply Cochrane Highly Sensitive Search Strategy RCT filter
 - Format for PubMed syntax (MeSH[MH], field tags, Boolean operators)
+- Adapt query syntax for each database (PubMed, CENTRAL, ClinicalTrials.gov)
 
 **Human checkpoint #1:** Present the search strategy to the user. User can approve, edit, or request regeneration. The approved query is logged verbatim for reproducibility.
 
 **Output:**
 ```json
 {
-  "search_query": "((heart failure[MH] OR cardiac failure[tiab] OR ...) AND (SGLT2[tiab] OR ...) AND (randomized controlled trial[pt] OR ...))",
-  "database": "PubMed",
+  "searches": [
+    {
+      "database": "PubMed",
+      "query": "((heart failure[MH] OR cardiac failure[tiab] OR ...) AND (SGLT2[tiab] OR ...) AND (randomized controlled trial[pt] OR ...))",
+      "rct_filter": "Cochrane Highly Sensitive"
+    },
+    {
+      "database": "Cochrane CENTRAL",
+      "query": "...",
+      "rct_filter": "built-in (CENTRAL indexes RCTs only)"
+    },
+    {
+      "database": "ClinicalTrials.gov",
+      "query": "...",
+      "rct_filter": "Interventional studies filter"
+    }
+  ],
   "date_searched": "2026-03-23",
-  "rct_filter": "Cochrane Highly Sensitive",
   "user_approved": true,
   "user_edits": "none | description of changes"
 }
@@ -122,12 +137,15 @@ This design means Meta-Analyst is fully functional standalone but produces riche
 ### 3.3 Stage 1.3: Search Execution
 
 **Process (API):**
-- Execute approved query via PubMed E-utilities (`esearch.fcgi` → `efetch.fcgi`)
-- Retrieve: PMID, title, abstract, authors, journal, year, DOI, publication type
-- Deduplicate by PMID and DOI
-- Log total hits
+- Execute approved queries across all three databases:
+  - **PubMed:** E-utilities API (`esearch.fcgi` → `efetch.fcgi`)
+  - **Cochrane CENTRAL:** Cochrane Library API (free, returns structured trial records)
+  - **ClinicalTrials.gov:** API v2 (`https://clinicaltrials.gov/api/v2/studies`) — captures registered trials including unpublished results, reducing publication bias
+- Retrieve per record: PMID/NCT ID, title, abstract, authors, journal, year, DOI, publication type, source database
+- Deduplicate across databases by PMID, DOI, and title fuzzy matching
+- Log: per-database hit counts, total before/after deduplication
 
-**Output:** Array of study records with metadata + abstracts.
+**Output:** Array of deduplicated study records with metadata + abstracts + source database tag.
 
 ### 3.4 Stage 1.4: Abstract Screening
 
@@ -161,7 +179,7 @@ This design means Meta-Analyst is fully functional standalone but produces riche
 
 **Process (deterministic):**
 - Generate PRISMA 2020 flow diagram from screening counts
-- Sections: Identification (records from database) → Screening (abstracts screened, excluded with reasons) → Included (studies in quantitative synthesis)
+- Sections: Identification (records per database: PubMed n=X, CENTRAL n=Y, ClinicalTrials.gov n=Z; duplicates removed) → Screening (abstracts screened, excluded with reasons) → Included (studies in quantitative synthesis)
 - Render as inline SVG
 
 **Output:** SVG string + structured counts JSON.
@@ -577,7 +595,7 @@ Each Python module gets a dedicated test file with known-input/known-output case
 ## 9 Dependencies
 
 - **Python:** scipy, statsmodels, numpy (same as Evidence Evaluator)
-- **APIs:** PubMed E-utilities (free, no key required for < 3 req/sec)
+- **APIs:** PubMed E-utilities (free, < 3 req/sec without key), Cochrane CENTRAL API (free), ClinicalTrials.gov API v2 (free)
 - **Optional:** Evidence Evaluator skill (`npx skills add SciSpark-ai/evidence_evaluator`)
 
 ---
@@ -596,7 +614,7 @@ Each Python module gets a dedicated test file with known-input/known-output case
 
 ## 11 Open Questions
 
-1. **Search scope:** PubMed only for v1. Should we add CrossRef/Semantic Scholar API as supplementary sources?
+1. ~~**Search scope:** PubMed only for v1.~~ **Resolved:** PubMed + Cochrane CENTRAL + ClinicalTrials.gov. All free APIs. Covers Cochrane Handbook minimum recommendation.
 2. **Full-text access:** Many papers will be behind paywalls. Strategy: extract from abstract + metadata first; flag when full-text extraction is needed; user provides access.
 3. **Subgroup analysis:** Not included in v1. Would require user-defined subgroup variables. Consider for v2.
 4. **Network meta-analysis:** Out of scope for v1. Different statistical framework (frequentist NMA or Bayesian).
