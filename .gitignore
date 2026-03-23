@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+meta_analysis_*.md
+meta_analysis_*.json

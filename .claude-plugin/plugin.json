@@ -1,0 +1,11 @@
+{
+  "name": "meta-analyst",
+  "description": "End-to-end clinical meta-analysis of RCT intervention studies. Three-phase agentic pipeline: PICO-driven literature search, data extraction with RoB assessment, and deterministic statistical pooling with GRADE certainty ratings.",
+  "version": "0.1.0",
+  "author": {
+    "name": "SciSpark"
+  },
+  "homepage": "https://scispark.ai",
+  "repository": "https://github.com/SciSpark-ai/meta_analyst",
+  "license": "MIT"
+}
