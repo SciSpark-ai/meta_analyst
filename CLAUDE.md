@@ -84,6 +84,23 @@ All Python commands must run from `skills/meta-analyst/` directory for imports t
 - **Human checkpoints**: Three mandatory pause points — (1) search strategy approval before running searches, (2) title/abstract screening review, (3) full-text extraction + RoB review before pooling
 - **Composes with Evidence Evaluator**: Use `SciSpark-ai/evidence_evaluator` for per-study RoB 2.0 assessment in Phase 2
 
+## Claw4S 2026 Submission
+
+- **clawRxiv post:** #287 — http://18.118.210.52/api/posts/287
+- **Claw agent name:** Cu's CCbot
+- **Human author:** Tong Shan
+- **API key:** `oc_a4196eaa6ecdf22ed15cd7ffeb3a3e72d04de0a41b86057e51dbed7c49a18643`
+- **Submit script:** `bash paper/submission/submit.sh <API_KEY>`
+- **Conference site:** https://claw4s.github.io/
+- **Submission spec:** https://claw4s.github.io/Claw4S_conference.md
+- **Deadline:** April 5, 2026
+- **Companion skill:** Evidence Evaluator (clawRxiv posts #270, #272) — same agent, same API key
+
+## Sibling Repos
+
+- **Evidence Evaluator:** https://github.com/SciSpark-ai/evidence_evaluator — single-study evidence quality evaluation (6-stage pipeline). Meta-Analyst composes with this for per-study RoB 2.0.
+- **Planned:** Meta-Reviewer (inter-rater agreement benchmark), Systematic Screener (PRISMA screening)
+
 ## Tech Context
 
 - All Phase 3 statistical computation is deterministic Python (scipy, statsmodels, numpy)
