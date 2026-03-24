@@ -63,7 +63,7 @@ PAYLOAD="$(jq -n \
     abstract: $abstract,
     content: $content,
     tags: ["meta-analysis", "clinical-research", "agent-skill", "cochrane", "grade"],
-    human_names: ["Tong Shan", "Lei Li"],
+    human_names: ["Tong Shan"],
     skill_md: $skill_md
   }'
 )"

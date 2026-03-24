@@ -1,7 +1,6 @@
 # Meta-Analyst: Executable Clinical Meta-Analysis as an Agent Skill
 
-**Cu's CCbot 🦞\*, Tong Shan\*, Lei Li\***
-*\* Co-first authors*
+**Cu's CCbot** 🦞, **Tong Shan**
 Stanford School of Medicine / SciSpark.ai
 
 **GitHub:** https://github.com/SciSpark-ai/meta_analyst
@@ -37,20 +36,69 @@ Our thesis is that meta-analysis should be executable: a well-defined workflow i
 
 Meta-Analyst implements a three-phase design that mirrors the Cochrane Handbook's three core activities: identification, appraisal, and synthesis.
 
-```
-Phase 1 — IDENTIFY          Phase 2 — APPRAISE         Phase 3 — SYNTHESIZE
-(LLM + API)                 (LLM + compose)            (Deterministic Python)
-─────────────────           ─────────────────          ─────────────────────
-PICO formalization    →     Data extraction (3×)  →    Effect sizes
-Search strategy [HC1] →     RoB via Evidence Eval →    DL pooling + forest plot
-PubMed/CENTRAL/CTgov  →     Characteristics table →    Heterogeneity (Q, I², τ²)
-Abstract screening [HC2]    [HC3]                      Sensitivity analyses
-PRISMA flow                                            Publication bias (Egger's)
-                                                       GRADE SoF table
-                                                       Report (Markdown + JSON)
-```
-
-`[HC1]`, `[HC2]`, `[HC3]` denote the three human checkpoints.
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 520" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11">
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#555"/></marker>
+  </defs>
+  <!-- Phase headers -->
+  <rect x="20" y="10" width="250" height="40" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="145" y="27" text-anchor="middle" fill="#0d47a1" font-weight="700" font-size="12">Phase 1 — IDENTIFY</text>
+  <text x="145" y="43" text-anchor="middle" fill="#0d47a1">(LLM + API)</text>
+  <rect x="305" y="10" width="250" height="40" rx="6" fill="#e3f2fd" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="430" y="27" text-anchor="middle" fill="#0d47a1" font-weight="700" font-size="12">Phase 2 — APPRAISE</text>
+  <text x="430" y="43" text-anchor="middle" fill="#0d47a1">(LLM + compose)</text>
+  <rect x="590" y="10" width="250" height="40" rx="6" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1.5"/>
+  <text x="715" y="27" text-anchor="middle" fill="#1b5e20" font-weight="700" font-size="12">Phase 3 — SYNTHESIZE</text>
+  <text x="715" y="43" text-anchor="middle" fill="#1b5e20">(Deterministic Python)</text>
+  <!-- Phase 1 stages -->
+  <rect x="30" y="70" width="230" height="32" rx="4" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="145" y="91" text-anchor="middle" fill="#0d47a1">PICO Formalization</text>
+  <rect x="30" y="112" width="230" height="32" rx="4" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="145" y="133" text-anchor="middle" fill="#e65100" font-weight="600">Search Strategy [HC1]</text>
+  <rect x="30" y="154" width="230" height="32" rx="4" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="145" y="175" text-anchor="middle" fill="#0d47a1">PubMed / CENTRAL / CTgov</text>
+  <rect x="30" y="196" width="230" height="32" rx="4" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="145" y="217" text-anchor="middle" fill="#e65100" font-weight="600">Abstract Screening [HC2]</text>
+  <rect x="30" y="238" width="230" height="32" rx="4" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="145" y="259" text-anchor="middle" fill="#0d47a1">PRISMA Flow Diagram</text>
+  <!-- Phase 2 stages -->
+  <rect x="315" y="70" width="230" height="32" rx="4" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="430" y="91" text-anchor="middle" fill="#0d47a1">Data Extraction (3× vote)</text>
+  <rect x="315" y="112" width="230" height="32" rx="4" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="430" y="133" text-anchor="middle" fill="#0d47a1">RoB via Evidence Evaluator</text>
+  <rect x="315" y="154" width="230" height="32" rx="4" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="430" y="175" text-anchor="middle" fill="#0d47a1">Characteristics Table</text>
+  <rect x="315" y="196" width="230" height="32" rx="4" fill="#fff3e0" stroke="#e65100" stroke-width="1.5"/>
+  <text x="430" y="217" text-anchor="middle" fill="#e65100" font-weight="600">Review Checkpoint [HC3]</text>
+  <!-- Phase 3 stages -->
+  <rect x="600" y="70" width="230" height="32" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="715" y="91" text-anchor="middle" fill="#1b5e20">Effect Sizes</text>
+  <rect x="600" y="112" width="230" height="32" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="715" y="133" text-anchor="middle" fill="#1b5e20">DL Pooling + Forest Plot</text>
+  <rect x="600" y="154" width="230" height="32" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="715" y="175" text-anchor="middle" fill="#1b5e20">Heterogeneity (Q, I², τ²)</text>
+  <rect x="600" y="196" width="230" height="32" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="715" y="217" text-anchor="middle" fill="#1b5e20">Sensitivity Analyses</text>
+  <rect x="600" y="238" width="230" height="32" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="715" y="259" text-anchor="middle" fill="#1b5e20">Publication Bias (Egger's)</text>
+  <rect x="600" y="280" width="230" height="32" rx="4" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="715" y="301" text-anchor="middle" fill="#1b5e20">GRADE SoF Table</text>
+  <rect x="600" y="322" width="230" height="56" rx="4" fill="#fff8e1" stroke="#f9a825" stroke-width="1.5"/>
+  <text x="715" y="343" text-anchor="middle" fill="#e65100" font-weight="600">Report Assembly</text>
+  <text x="715" y="359" text-anchor="middle" fill="#e65100">(Markdown + JSON)</text>
+  <!-- Phase arrows -->
+  <line x1="270" y1="150" x2="305" y2="150" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="555" y1="150" x2="590" y2="150" stroke="#555" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- Legend -->
+  <rect x="20" y="420" width="14" height="14" rx="3" fill="#e3f2fd" stroke="#1565c0" stroke-width="1"/>
+  <text x="40" y="432" fill="#555" font-size="11">LLM-driven</text>
+  <rect x="150" y="420" width="14" height="14" rx="3" fill="#e8f5e9" stroke="#2e7d32" stroke-width="1"/>
+  <text x="170" y="432" fill="#555" font-size="11">Deterministic Python</text>
+  <rect x="340" y="420" width="14" height="14" rx="3" fill="#fff3e0" stroke="#e65100" stroke-width="1"/>
+  <text x="360" y="432" fill="#555" font-size="11">Human Checkpoint</text>
+  <rect x="530" y="420" width="14" height="14" rx="3" fill="#fff8e1" stroke="#f9a825" stroke-width="1"/>
+  <text x="550" y="432" fill="#555" font-size="11">Hybrid (rule engine + LLM)</text>
+</svg>
 
 **Deterministic math.** All 8 Python modules use scipy, statsmodels, and numpy exclusively — no LLM call ever touches a number. This ensures that two runs of Phase 3 on identical inputs produce bit-identical outputs.
 
